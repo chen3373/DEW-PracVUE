@@ -4,12 +4,11 @@
       <div>
         <UserInput />
         <h1>Listado de productos</h1>
-        <button @click="showCart = true, emit('cart-updated', updatedCart)" class="go-to-cart-btn">Ir al carrito ({{
-          cart.length }})</button>
+        <button @click="showCart = true" class="go-to-cart-btn">Ir al carrito ({{ cart.length }})</button>
       </div>
       <ProductList :cart="cart" @product-added="addToCart" />
     </div>
-    <Cart v-if="showCart" :cart="cart" @cart-updated="handleCartUpdate" @back-to-products="showCart = false" />
+    <Cart v-if="showCart" :cart="cart" @back-to-products="showCart = false" />
   </div>
 </template>
 
@@ -22,14 +21,9 @@ import Cart from './components/Cart.vue';
 const cart = ref([]);
 const showCart = ref(false);
 
-// No necesitas pasar cart como argumento a addToCart
 const addToCart = (product) => {
   cart.value.push(product);
 };
-
-const handleCartUpdate = (updatedCart) => {
-  cart = updatedCart;
-}
 </script>
 
 <style scoped>

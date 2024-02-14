@@ -38,8 +38,6 @@
       <!-- Mostrar el total del pedido y botones para vaciar el carrito y eliminar el carrito almacenado -->
       <div class="cart-total">
         <p>Total del Pedido: {{ total }}</p>
-        <button @click="emptyCart">Vaciar Carrito</button>
-        <button @click="clearLocalStorage">Eliminar Carrito Almacenado</button>
       </div>
     </div>
   </template>
@@ -47,7 +45,7 @@
   <script setup>
   import { computed, defineProps, defineEmits, onMounted } from 'vue';
   
-  const emit = defineEmits(['back-to-products']);
+  const emit = defineEmits(['back-to-products', 'empty-cart']);
   
   // Definir las propiedades del componente
   const props = defineProps({
@@ -79,11 +77,8 @@
       });
   };
   
-  // Vaciar el carrito
-  const emptyCart = () => {
-    props.cart = [];
-    saveCartToLocalStorage();
-  };
+
+  
   
   // Función para volver a la lista de productos
   const goBackToProducts = () => {

@@ -1,4 +1,7 @@
 <template>
+  <div v-if="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
   <div>
     <input type="text" v-model="searchText" placeholder="Buscar por nombre" class="search-input">
     <div class="select-container">
@@ -36,10 +39,12 @@
           <td>{{ product.category }}</td>
           <td>
             <button @click="addToCart(product)">Añadir al carrito</button>
+            <button @click="removeProduct(product)">Eliminar</button> <!-- Botón para eliminar el producto -->
           </td>
         </tr>
       </tbody>
     </table>
+
   </div>
 </template>
 
@@ -59,6 +64,8 @@ const sortByPrice = ref(false);
 const props = defineProps({
   cart: Array
 });
+const successMessage = ref('');
+
 
 const fetchProducts = async () => {
   try {
@@ -92,25 +99,54 @@ const getCategories = async () => {
 };
 
 const addToCart = (product) => {
-  // Buscar si el producto ya está en el carrito
   const existingProduct = props.cart.find(item => item.id === product.id);
 
-  // Si el producto ya está en el carrito, incrementar la cantidad
   if (existingProduct) {
     existingProduct.quantity += 1;
   } else {
-    // Si el producto no está en el carrito, añadirlo con cantidad 1
     props.cart.push({ ...product, quantity: 1 });
   }
 
-  // Find or create the updated cart entry
   const existingIndex = props.cart.findIndex(item => item.id === product.id);
   const updatedCart = existingIndex !== -1
-    ? [...props.cart] // Copy cart to avoid mutation
+    ? [...props.cart]
     : [...props.cart, { ...product, quantity: 1 }];
 
-  // Emit the updated cart data
   emit('update-cart', updatedCart);
+};
+
+const removeProduct = async (product) => {
+  const index = products.value.findIndex(item => item.id === product.id);
+  if (index !== -1) {
+    // Eliminar el producto de la lista de productos
+    products.value.splice(index, 1);
+
+    // Eliminar el producto del carrito si está presente
+    const cartIndex = props.cart.findIndex(item => item.id === product.id);
+    if (cartIndex !== -1) {
+      props.cart.splice(cartIndex, 1);
+      emit('update-cart', [...props.cart]); // Emitir una actualización del carrito
+    }
+
+    try {
+      await deleteProductOnServer(product.id);
+      successMessage.value = '¡Producto eliminado exitosamente!';
+      setTimeout(() => {
+        successMessage.value = ''; // Limpiar el mensaje después de unos segundos
+      }, 3000);
+    } catch (error) {
+      console.error('Error al eliminar el producto en el servidor:', error);
+    }
+  }
+};
+
+const deleteProductOnServer = async (productId) => {
+  const response = await fetch(`${API}products/${productId}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) {
+    throw new Error('Error al eliminar el producto en el servidor');
+  }
 };
 
 const filteredProducts = computed(() => {
@@ -128,6 +164,7 @@ const filteredProducts = computed(() => {
     }
   });
 });
+
 </script>
 
 <style scoped>
@@ -205,5 +242,14 @@ const filteredProducts = computed(() => {
 .sort-indicator {
   font-size: 12px;
   margin-left: 5px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
 }
 </style>
