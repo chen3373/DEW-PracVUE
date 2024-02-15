@@ -26,25 +26,23 @@
             <span v-if="sortByPrice.value" class="sort-indicator">&#8593;</span>
             <span v-else class="sort-indicator">&#8595;</span>
           </th>
-
           <th>Categoría</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="product in filteredProducts" :key="product.id">
+        <tr v-for="product in filteredProducts" :key="product.id" :class="{ alcoholic: product.category == 'Alcoholic' }">
           <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
           <td>{{ product.price }}</td>
           <td>{{ product.category }}</td>
           <td>
             <button @click="addToCart(product)">Añadir al carrito</button>
-            <button @click="removeProduct(product)">Eliminar</button> <!-- Botón para eliminar el producto -->
+            <button @click="removeProduct(product)">Eliminar</button>
           </td>
         </tr>
       </tbody>
     </table>
-
   </div>
 </template>
 
@@ -251,5 +249,14 @@ const filteredProducts = computed(() => {
   padding: 10px;
   margin-top: 10px;
   border-radius: 5px;
+}
+
+.alcoholic {
+  background-color: #ffcccc;
+  color: #333;
+}
+
+.product-table td:hover {
+  background-color: #f2f2f2;
 }
 </style>
