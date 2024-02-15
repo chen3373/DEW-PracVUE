@@ -162,7 +162,6 @@ const filteredProducts = computed(() => {
     }
   });
 });
-
 </script>
 
 <style scoped>
