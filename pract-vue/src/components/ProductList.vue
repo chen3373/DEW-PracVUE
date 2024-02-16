@@ -1,28 +1,37 @@
 <template>
+  <!-- Mostrar un mensaje de éxito cuando se realiza una acción exitosa -->
   <div v-if="successMessage" class="success-message">
     {{ successMessage }}
   </div>
   <div>
+    <!-- Input para buscar productos por nombre -->
     <input type="text" v-model="searchText" placeholder="Buscar por nombre" class="search-input">
+    <!-- Select para filtrar por categoría -->
     <div class="select-container">
       <label class="select-label">Categoría:</label>
       <select v-model="categorySelected" class="select-input">
+        <!-- Opción para mostrar todos los productos -->
         <option value="" class="select-option">Todas</option>
-        <option v-for="category in categories" :key="category" :value="category" class="select-option">{{ category }}
-        </option>
+        <!-- Iterar sobre las categorías disponibles -->
+        <option v-for="category in categories" :key="category" :value="category" class="select-option">{{ category }}</option>
       </select>
     </div>
+    <!-- Tabla para mostrar los productos -->
     <table class="product-table">
       <thead>
         <tr>
           <th>ID</th>
+          <!-- Encabezado para ordenar por nombre -->
           <th>
             <span @click="sortByName = !sortByName" class="sortable-header">Nombre</span>
+            <!-- Indicador de orden ascendente/descendente para nombre -->
             <span v-if="sortByName.value" class="sort-indicator">&#8593;</span>
             <span v-else class="sort-indicator">&#8595;</span>
           </th>
+          <!-- Encabezado para ordenar por precio -->
           <th>
             <span @click="sortByPrice = !sortByPrice" class="sortable-header">Precio</span>
+            <!-- Indicador de orden ascendente/descendente para precio -->
             <span v-if="sortByPrice.value" class="sort-indicator">&#8593;</span>
             <span v-else class="sort-indicator">&#8595;</span>
           </th>
@@ -31,11 +40,13 @@
         </tr>
       </thead>
       <tbody>
+        <!-- Iterar sobre los productos filtrados -->
         <tr v-for="product in filteredProducts" :key="product.id" :class="{ alcoholic: product.category == 'Alcoholic' }">
           <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
           <td>{{ product.price }}</td>
           <td>{{ product.category }}</td>
+          <!-- Botones para agregar al carrito y eliminar producto -->
           <td>
             <button @click="addToCart(product)">Añadir al carrito</button>
             <button @click="removeProduct(product)">Eliminar</button>
@@ -47,24 +58,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+// Importar funciones y objetos necesarios de Vue
+import { ref, onMounted, computed, defineProps, defineEmits } from 'vue';
 
+// URL base para las llamadas a la API
 const API = "http://localhost:3000/api/";
 
+// Definir eventos emitidos por el componente
 const emit = defineEmits(['product-added', 'update-cart']);
 
-const products = ref([]);
-const searchText = ref('');
-const categories = ref([]);
-const categorySelected = ref('');
-const sortByName = ref(false);
-const sortByPrice = ref(false);
-const props = defineProps({
+// Variables reactivas
+const products = ref([]); // Lista de productos
+const searchText = ref(''); // Texto de búsqueda
+const categories = ref([]); // Lista de categorías
+const categorySelected = ref(''); // Categoría seleccionada para filtrar
+const sortByName = ref(false); // Flag para ordenar por nombre
+const sortByPrice = ref(false); // Flag para ordenar por precio
+const props = defineProps({ // Props recibidos por el componente
   cart: Array
 });
-const successMessage = ref('');
+const successMessage = ref(''); // Mensaje de éxito
 
-
+// Método para obtener productos desde la API
 const fetchProducts = async () => {
   try {
     const data = await getProducts();
@@ -74,6 +89,7 @@ const fetchProducts = async () => {
   }
 };
 
+// Método para obtener categorías desde la API
 const fetchCategories = async () => {
   try {
     const data = await getCategories();
@@ -83,19 +99,23 @@ const fetchCategories = async () => {
   }
 };
 
+// Ejecutar métodos de obtención de productos y categorías al montar el componente
 onMounted(fetchProducts);
 onMounted(fetchCategories);
 
+// Función para obtener productos desde la API
 const getProducts = async () => {
   const response = await fetch(API + 'products');
   return response.json();
 };
 
+// Función para obtener categorías desde la API
 const getCategories = async () => {
   const response = await fetch(API + 'categories');
   return response.json();
 };
 
+// Función para añadir un producto al carrito
 const addToCart = (product) => {
   const existingProduct = props.cart.find(item => item.id === product.id);
 
@@ -113,6 +133,7 @@ const addToCart = (product) => {
   emit('update-cart', updatedCart);
 };
 
+// Función para eliminar un producto
 const removeProduct = async (product) => {
   const index = products.value.findIndex(item => item.id === product.id);
   if (index !== -1) {
@@ -127,7 +148,9 @@ const removeProduct = async (product) => {
     }
 
     try {
+      // Eliminar el producto en el servidor
       await deleteProductOnServer(product.id);
+      // Mostrar mensaje de éxito
       successMessage.value = '¡Producto eliminado exitosamente!';
       setTimeout(() => {
         successMessage.value = ''; // Limpiar el mensaje después de unos segundos
@@ -138,6 +161,7 @@ const removeProduct = async (product) => {
   }
 };
 
+// Función para eliminar un producto en el servidor
 const deleteProductOnServer = async (productId) => {
   const response = await fetch(`${API}products/${productId}`, {
     method: 'DELETE'
@@ -147,12 +171,15 @@ const deleteProductOnServer = async (productId) => {
   }
 };
 
+// Lista de productos filtrados y ordenados
 const filteredProducts = computed(() => {
   return products.value.filter(product => {
+    // Filtrar por texto de búsqueda y categoría seleccionada
     const matchesSearch = product.name.toLowerCase().includes(searchText.value.toLowerCase());
     const matchesCategory = categorySelected.value === '' || product.category === categorySelected.value;
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
+    // Ordenar según las banderas de ordenamiento
     if (sortByName.value) {
       return (a.name < b.name) ? -1 : ((a.name > b.name) ? 1 : 0);
     } else if (sortByPrice.value) {
@@ -165,6 +192,7 @@ const filteredProducts = computed(() => {
 </script>
 
 <style scoped>
+/* Estilos específicos del componente */
 .product-table {
   width: 100%;
   border-collapse: collapse;

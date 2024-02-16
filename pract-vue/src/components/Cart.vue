@@ -1,4 +1,5 @@
 <template>
+  <!-- Contenedor del carrito de compras -->
   <div class="cart">
     <!-- Botón para volver a la lista de productos -->
     <button @click="goBackToProducts">Volver a la lista de productos</button>
@@ -44,10 +45,13 @@
 </template>
 
 <script setup>
+// Importar funciones y objetos necesarios de Vue
 import { computed, defineProps, defineEmits, onMounted } from 'vue';
 
+// Definir propiedades recibidas por el componente
 const props = defineProps(['cart']);
 
+// Definir eventos emitidos por el componente
 const emit = defineEmits(['back-to-products', 'empty-cart']);
 
 // Calcular el total del carrito
@@ -135,6 +139,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Estilos específicos del componente */
 .cart-table {
   width: 100%;
   border-collapse: collapse;

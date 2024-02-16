@@ -1,21 +1,26 @@
 <template>
+  <!-- Contenedor principal de la aplicación -->
   <div id="app">
+    <!-- Contenido mostrado cuando no se muestra el carrito -->
     <div v-if="!showCart">
+      <!-- Sección para ingresar nombre de usuario -->
       <div>
-        <div>
-          <!-- Input para el nombre de usuario -->
-          <input type="text" v-model="userName" class="inputUser" placeholder="Insertar nombre de usuario">
-          <!-- Mostrar mensaje de bienvenida solo si el nombre de usuario no está vacío -->
-          <div v-if="userName !== ''" class="welcome-message">Bienvenido {{ userName }}</div>
-        </div>
-        <h1>Listado de productos</h1>
-        <div>
-          <button @click="showCart = true" class="go-to-cart-btn">Ir al carrito ({{ cart.length }})</button>
-          <button @click="sendOrder" class="send-order-btn">Enviar Pedido</button>
-        </div>
+        <!-- Input para el nombre de usuario -->
+        <input type="text" v-model="userName" class="inputUser" placeholder="Insertar nombre de usuario">
+        <!-- Mostrar mensaje de bienvenida solo si el nombre de usuario no está vacío -->
+        <div v-if="userName !== ''" class="welcome-message">Bienvenido {{ userName }}</div>
       </div>
-      <ProductList :cart="cart" />
+      <h1>Listado de productos</h1>
+      <div>
+        <!-- Botón para ir al carrito -->
+        <button @click="showCart = true" class="go-to-cart-btn">Ir al carrito ({{ cart.length }})</button>
+        <!-- Botón para enviar el pedido -->
+        <button @click="sendOrder" class="send-order-btn">Enviar Pedido</button>
+      </div>
     </div>
+    <!-- Componente ProductList que muestra la lista de productos -->
+    <ProductList :cart="cart" />
+    <!-- Componente Cart que muestra el carrito de compras -->
     <Cart v-if="showCart" :cart="cart" @back-to-products="showCart = false" />
     <!-- Botón para eliminar el carrito -->
     <button @click="removeShoppingCart" class="remove-cart-btn">Eliminar Carrito</button>
@@ -23,20 +28,22 @@
 </template>
 
 <script setup>
+// Importar funciones y objetos necesarios de Vue
 import { ref, watch, onMounted } from 'vue';
 import ProductList from './components/ProductList.vue';
 import Cart from './components/Cart.vue';
 
+// Definir datos reactivos
 const userName = ref('Chen');
 const cart = ref([]);
 const showCart = ref(false);
 
-// Watcher para observar cambios en cart y almacenarlo en local storage
+// Observar cambios en el carrito y almacenarlo en local storage
 watch(cart, (newCart) => {
   localStorage.setItem('cart', JSON.stringify(newCart));
 }, { deep: true });
 
-// Función para cargar el carrito desde el local storage al iniciar la aplicación
+// Función para cargar el carrito desde local storage al iniciar la aplicación
 const loadLocalCart = () => {
   const savedCart = localStorage.getItem('cart');
   if (savedCart) {
@@ -54,6 +61,7 @@ onMounted(() => {
   loadLocalCart();
 });
 
+// Función para enviar el pedido
 const sendOrder = async () => {
   try {
     const userName = 'Juan'; // Nombre fijo para simplificar
@@ -81,10 +89,10 @@ const sendOrder = async () => {
   }
 };
 
-
 </script>
 
 <style scoped>
+/* Estilos específicos del componente */
 #app {
   padding: 20px;
 }
